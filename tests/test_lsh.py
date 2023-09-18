@@ -1,5 +1,5 @@
 from datetime import datetime
-from os import mkdir, setsid
+from os import mkdir, setsid, killpg, getpgid
 from pathlib import Path
 from signal import SIGINT
 from subprocess import run, PIPE, Popen, TimeoutExpired
@@ -198,7 +198,7 @@ class TestLsh(unittest.TestCase):
         sleep(1)
 
         # Kill the foreground process
-        lsh.send_signal(SIGINT)
+        killpg(getpgid(lsh.pid), SIGINT)
 
         self.check_for_zombies(lsh.pid)
 
@@ -231,7 +231,7 @@ class TestLsh(unittest.TestCase):
                                                           "and a background process at the same time")
 
         # Kill the foreground process
-        lsh.send_signal(SIGINT)
+        killpg(getpgid(lsh.pid), SIGINT)
         sleep(1)
 
         self.assertEqual(1, len(lsh_info.children()), msg="There should be only one child process after Ctrl+C")
