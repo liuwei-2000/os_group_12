@@ -157,7 +157,7 @@ class TestLsh(unittest.TestCase):
 
     def test_bg_and_fg(self):
         r"""
-        Execute "sleep 60 &" and then "echo Hello"
+        Execute "sleep 3 &" and then "echo Hello"
         """
         lsh = Popen(str(self.lsh), stdin=PIPE, stdout=PIPE, stderr=PIPE, preexec_fn=setsid)
         lsh.stdin.write("sleep 3 &\n".encode())
@@ -186,9 +186,9 @@ class TestLsh(unittest.TestCase):
         self.assertIn("hello\n", out.decode())
         self.assertEqual(0, lsh.returncode, msg=f"This should return 0: {err}")
 
-    def test_SIGINT(self):
+    def test_CTRL_C(self):
         r"""
-        Send SIGINT while "sleep 60"
+        Simulate pressing CTRL-C while "sleep 60"
         """
         lsh = Popen(str(self.lsh), stdin=PIPE, stdout=PIPE, stderr=PIPE, preexec_fn=setsid)
         lsh.stdin.write("sleep 60\n".encode())
@@ -197,7 +197,7 @@ class TestLsh(unittest.TestCase):
         # Give lsh some time to start and invoke the cmd
         sleep(1)
 
-        # Kill the foreground process
+        # Simulate pressing CTRL-C by sending SIGINT to the entire lsh process group
         killpg(getpgid(lsh.pid), SIGINT)
 
         self.check_for_zombies(lsh.pid)
@@ -206,9 +206,9 @@ class TestLsh(unittest.TestCase):
         _, err = lsh.communicate()
         self.assertEqual(0, lsh.returncode, msg=f"This should return 0: {err}")
 
-    def test_SIGINT_with_fg_and_bg(self):
+    def test_CTRL_C_with_fg_and_bg(self):
         r"""
-        Execute "sleep 60 &" then "sleep 60" and then SIGINT
+        Execute "sleep 60 &" then "sleep 60" and then simulate pressing Ctrl-C
         """
         lsh = Popen(str(self.lsh), stdin=PIPE, stdout=PIPE, stderr=PIPE, preexec_fn=setsid)
         lsh.stdin.write("sleep 60 &\n".encode())
@@ -230,7 +230,7 @@ class TestLsh(unittest.TestCase):
         self.assertEqual(2, len(lsh_info.children()), msg="You do not seem to support a foreground process "
                                                           "and a background process at the same time")
 
-        # Kill the foreground process
+        # Simulate pressing "Ctrl-C" by sending SIGINT to the entire lsh process group
         killpg(getpgid(lsh.pid), SIGINT)
         sleep(1)
 
