@@ -140,13 +140,12 @@ class TestLsh(unittest.TestCase):
         # Check if ls output has hello.txt to verify that cd works
         self.assertIn("hello.txt", out)
 
-    def test_date_grep(self):
+    def test_echo_rev(self):
         r"""
-        date | grep 20
+        Execute "echo ananab | rev" and expect to find banana in the output
         """
-        current_year = str(datetime.now().year)
-        out = self.run_cmd(cmd="date | grep 20", check_for_zombies=True)
-        self.assertIn(current_year, out)
+        out = self.run_cmd(cmd='echo ananab | rev', check_for_zombies=True)
+        self.assertIn("banana", out)
 
     def test_echo_grep_wc(self):
         r"""
