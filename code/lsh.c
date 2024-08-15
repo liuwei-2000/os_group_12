@@ -28,11 +28,17 @@
 #include <unistd.h>
 
 #include "parse.h"
-
+           
 static void run_cmds(Command *);
 static void print_cmd(Command *cmd);
 static void print_pgm(Pgm *p);
+static void execute_ls_function();
+
 void stripwhite(char *);
+
+static void execute_who_function();
+
+static void execute_pwd_function();
 
 int main(void)
 {
@@ -74,16 +80,100 @@ int main(void)
 }
 
 /* Execute the given command(s).
-
- * Note: The function currently only prints the command(s).
  *
  * TODO:
- * 1. Implement this function so that it executes the given command(s).
+ * 1. Execute ls, data, and who command. PATH is also required, for example
+ *    ls /certain/path, who /certain_path
+ * 2. sleep 30 &
  * 2. Remove the debug printing before the final submission.
  */
 static void run_cmds(Command *cmd_list)
 {
-  print_cmd(cmd_list);
+
+    Pgm *pgm = cmd_list->pgm;
+    char **pl = pgm->pgmlist;
+    // Fork a new process
+    pid_t pid = fork();
+    if (pid < 0) {
+        // Fork failed
+        perror("fork");
+        exit(EXIT_FAILURE);
+    } else if (pid == 0) {
+        switch (*pl[0]) {
+            case 'l':
+                if (strcmp(*pl, "ls") == 0) {
+                    execute_ls_function();
+                } else {
+                    printf("Unknown command\n");
+                }
+                break;
+            case 'w':
+                if (strcmp(*pl, "who") == 0) {
+                    execute_who_function();
+                } else {
+                    printf("Unknown command\n");
+                }
+                break;
+            case 'p':
+                if (strcmp(*pl, "pwd") == 0) {
+                    execute_pwd_function();
+                } else {
+                    printf("Unknown command\n");
+                }
+                break;
+            case 'c':
+                if (strcmp(*pl, "cd") == 0) {
+                    execute_ls_function();
+                } else {
+                    printf("Unknown command\n");
+                }
+                break;
+            case 'd':
+                if (strcmp(*pl, "date") == 0) {
+                    execute_ls_function();
+                } else {
+                    printf("Unknown command\n");
+                }
+                break;
+            default:printf("unknown command");
+        }
+
+    } else {
+        // Parent process: wait for the child to complete
+        int status;
+        if (!cmd_list->background) {
+            // Only wait if the command is not set to run in the background
+            waitpid(pid, &status, 0);
+        }
+    }
+        print_cmd(cmd_list);
+}
+
+static void execute_pwd_function() {
+    int error = 0;
+    error = execlp("pwd", "pwd", (char *)NULL);
+    perror("Execute pwd fails");
+    if(error==-1){
+        exit(EXIT_FAILURE);
+    }
+}
+
+static void execute_who_function() {
+    int error = 0;
+    error = execlp("who", "who", (char *)NULL);
+    perror("Execute who fails");
+    if(error==-1){
+        exit(EXIT_FAILURE);
+    }
+}
+
+static void execute_ls_function() {
+    int error = 0;
+    error = execlp("ls", "ls", "-l", (char *)NULL);
+    perror("Execute lp fails");
+    if(error==-1){
+        exit(EXIT_FAILURE);
+    }
 }
 
 /*
@@ -157,3 +247,5 @@ void stripwhite(char *string)
 
   string[++i] = '\0';
 }
+
+
