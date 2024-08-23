@@ -12,3 +12,8 @@
 
 - `.github/workflows` contains the workflow file that instructs GitHub to run the tests in `./tests`
    whenever the repository is updated
+
+TODO:
+1. Move functions to separate files
+2. Create function to extract command in a string.
+3. 
