@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 3.18)
 
-project(EDA093-lab1 LANGUAGES C)
+project(vicky/os_vicky LANGUAGES C)
 
 add_executable(lsh parse.c lsh.c)
 target_link_libraries(lsh PRIVATE readline termcap)

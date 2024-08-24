@@ -33,12 +33,11 @@ static void run_cmds(Command *);
 static void print_cmd(Command *cmd);
 static void print_pgm(Pgm *p);
 static void execute_ls_function();
+static void execute_who_function();
+static void execute_date_function();
+static void execute_pwd_function();
 
 void stripwhite(char *);
-
-static void execute_who_function();
-
-static void execute_pwd_function();
 
 int main(void)
 {
@@ -130,7 +129,7 @@ static void run_cmds(Command *cmd_list)
                 break;
             case 'd':
                 if (strcmp(*pl, "date") == 0) {
-                    execute_ls_function();
+                    execute_date_function();
                 } else {
                     printf("Unknown command\n");
                 }
@@ -176,6 +175,14 @@ static void execute_ls_function() {
     }
 }
 
+static void execute_date_function() {
+    int error = 0;
+    error = execlp("date", "date", (char *)NULL);
+    perror("Execute Date command fails");
+    if(error==-1){
+        exit(EXIT_FAILURE);
+    }
+}
 /*
  * Print a Command structure as returned by parse on stdout.
  *
