@@ -1,0 +1,13 @@
+{
+    "files.associations": {
+        "*.v": "verilog",
+        ".sv": "systemverilog",
+        "exe_functions.h": "c",
+        "readline.h": "c",
+        "unistd.h": "c",
+        "string.h": "c",
+        "parse.h": "c",
+        "assert.h": "c",
+        "stdio.h": "c"
+    }
+}

@@ -23,6 +23,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include "exe_functions.h"
 
 // The <unistd.h> header is your gateway to the OS's process management facilities.
 #include <unistd.h>
@@ -32,10 +33,6 @@
 static void run_cmds(Command *);
 static void print_cmd(Command *cmd);
 static void print_pgm(Pgm *p);
-static void execute_ls_function();
-static void execute_who_function();
-static void execute_date_function();
-static void execute_pwd_function();
 
 void stripwhite(char *);
 
@@ -148,41 +145,6 @@ static void run_cmds(Command *cmd_list)
         print_cmd(cmd_list);
 }
 
-static void execute_pwd_function() {
-    int error = 0;
-    error = execlp("pwd", "pwd", (char *)NULL);
-    perror("Execute pwd fails");
-    if(error==-1){
-        exit(EXIT_FAILURE);
-    }
-}
-
-static void execute_who_function() {
-    int error = 0;
-    error = execlp("who", "who", (char *)NULL);
-    perror("Execute who fails");
-    if(error==-1){
-        exit(EXIT_FAILURE);
-    }
-}
-
-static void execute_ls_function() {
-    int error = 0;
-    error = execlp("ls", "ls", "-l", (char *)NULL);
-    perror("Execute lp fails");
-    if(error==-1){
-        exit(EXIT_FAILURE);
-    }
-}
-
-static void execute_date_function() {
-    int error = 0;
-    error = execlp("date", "date", (char *)NULL);
-    perror("Execute Date command fails");
-    if(error==-1){
-        exit(EXIT_FAILURE);
-    }
-}
 /*
  * Print a Command structure as returned by parse on stdout.
  *
