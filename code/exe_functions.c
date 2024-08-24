@@ -1,6 +1,7 @@
 #include "exe_functions.h"
 #include <unistd.h>
 #include <stdlib.h>
+#include <stdio.h> d
 void execute_pwd_function() {
     int error = 0;
     error = execlp("pwd", "pwd", (char *)NULL);
