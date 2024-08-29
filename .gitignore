@@ -248,3 +248,15 @@ reports/
 
 ## macOS ##
 .DS_Store
+code/cmake-build-debug/build.ninja
+code/cmake-build-debug/.cmake/api/v1/query/cache-v2
+code/cmake-build-debug/.cmake/api/v1/query/cmakeFiles-v1
+code/cmake-build-debug/.cmake/api/v1/query/codemodel-v2
+code/cmake-build-debug/.cmake/api/v1/query/toolchains-v1
+code/cmake-build-debug/.cmake/api/v1/reply/cache-v2-6feb5a51fe97c53f8e98.json
+code/cmake-build-debug/.cmake/api/v1/reply/cmakeFiles-v1-06ccb9892d795c3a28eb.json
+code/cmake-build-debug/.cmake/api/v1/reply/codemodel-v2-0a7c6c1ad5d4a9c3cc03.json
+code/cmake-build-debug/.cmake/api/v1/reply/directory-.-Debug-f5ebdc15457944623624.json
+code/cmake-build-debug/.cmake/api/v1/reply/index-2024-08-24T14-40-31-0617.json
+code/cmake-build-debug/.cmake/api/v1/reply/target-lsh-Debug-28213f609f82dbed518e.json
+code/cmake-build-debug/.cmake/api/v1/reply/toolchains-v1-f178ede639524573fd98.json
