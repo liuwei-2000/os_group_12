@@ -81,11 +81,11 @@ int main(void)
  * 1. Execute ls, data, and who command. PATH is also required, for example
  *    ls /certain/path, who /certain_path
  * 2. sleep 30 &
- * 2. Remove the debug printing before the final submission.
+ * 3. Remove the debug printing before the final submission.
  */
 static void run_cmds(Command *cmd_list)
 {
-
+    int sleep_time=0;
     Pgm *pgm = cmd_list->pgm;
     char **pl = pgm->pgmlist;
     // Fork a new process
@@ -131,6 +131,11 @@ static void run_cmds(Command *cmd_list)
                     printf("Unknown command\n");
                 }
                 break;
+            case 's':
+                // Get the sleep number after 6 position of 's'
+                sleep_time = atoi(*pl + 6);
+                sleep(sleep_time);
+                printf("Sleep about %d sec \n", sleep_time);
             default:printf("unknown command");
         }
 
