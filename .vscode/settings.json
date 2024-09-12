@@ -9,5 +9,6 @@
         "parse.h": "c",
         "assert.h": "c",
         "stdio.h": "c"
-    }
+    },
+    "cmake.sourceDirectory": "/Users/liuwei/Desktop/OS/OS-lab1/code"
 }

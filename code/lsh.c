@@ -29,7 +29,7 @@
 #include <unistd.h>
 
 #include "parse.h"
-           
+
 static void run_cmds(Command *);
 static void print_cmd(Command *cmd);
 static void print_pgm(Pgm *p);
@@ -62,8 +62,8 @@ int main(void)
       {
         run_cmds(&cmd);
       }
-      else
-      {
+      else {
+      }      {
         printf("Parse ERROR\n");
       }
     }
@@ -95,6 +95,7 @@ static void run_cmds(Command *cmd_list)
         perror("fork");
         exit(EXIT_FAILURE);
     } else if (pid == 0) {
+      // child process
         switch (*pl[0]) {
             case 'l':
                 if (strcmp(*pl, "ls") == 0) {
@@ -106,13 +107,6 @@ static void run_cmds(Command *cmd_list)
             case 'w':
                 if (strcmp(*pl, "who") == 0) {
                     execute_who_function();
-                } else {
-                    printf("Unknown command\n");
-                }
-                break;
-            case 'p':
-                if (strcmp(*pl, "pwd") == 0) {
-                    execute_pwd_function();
                 } else {
                     printf("Unknown command\n");
                 }
