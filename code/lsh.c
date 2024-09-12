@@ -24,17 +24,36 @@
 #include <stdlib.h>
 #include <string.h>
 #include "exe_functions.h"
-
 // The <unistd.h> header is your gateway to the OS's process management facilities.
 #include <unistd.h>
+#include <pthread.h>
 
 #include "parse.h"
 
-static void run_cmds(Command *);
 static void print_cmd(Command *cmd);
 static void print_pgm(Pgm *p);
-
+static void run_command(Command *cmd_list);
 void stripwhite(char *);
+
+static void run_pgm(Pgm *pC);
+
+void* monitor_ctrl_d(pthread_t execution_thread) {
+  printf("Monitor thread started. Press Ctrl+D (EOF) to terminate the sleep thread.\n");
+
+  // Monitor stdin for Ctrl+D (EOF)
+  while (1) {
+    int c = getchar(); // Read from stdin
+    if (c == EOF) {
+      printf("\nCtrl+D (EOF) detected. Terminating the execution thread...\n");
+
+      // Cancel the sleep thread
+      pthread_cancel(execution_thread);
+      break;
+    }
+  }
+
+  return NULL;
+}
 
 int main(void)
 {
@@ -42,12 +61,6 @@ int main(void)
   {
     char *line;
     line = readline("> ");
-
-    // If EOF encountered, exit shell
-    if (!line)
-    {
-      break;
-    }
 
     // Remove leading and trailing whitespace from the line
     stripwhite(line);
@@ -58,15 +71,14 @@ int main(void)
       add_history(line);
 
       Command cmd;
-      if (parse(line, &cmd) == 1)
-      {
-        run_cmds(&cmd);
+      if (parse(line, &cmd) == 1){
+          run_command(&cmd);
       }
-      else {
-      }      {
+      else{
         printf("Parse ERROR\n");
       }
     }
+
 
     // Clear memory
     free(line);
@@ -75,80 +87,67 @@ int main(void)
   return 0;
 }
 
-/* Execute the given command(s).
- *
- * TODO:
- * 1. Execute ls, data, and who command. PATH is also required, for example
- *    ls /certain/path, who /certain_path
- * 2. sleep 30 &
- * 3. Remove the debug printing before the final submission.
- */
-static void run_cmds(Command *cmd_list)
-{
-    int sleep_time=0;
-    Pgm *pgm = cmd_list->pgm;
-    char **pl = pgm->pgmlist;
-    // Fork a new process
-    pid_t pid = fork();
-    if (pid < 0) {
-        // Fork failed
-        perror("fork");
-        exit(EXIT_FAILURE);
-    } else if (pid == 0) {
-      // child process
-        switch (*pl[0]) {
-            case 'l':
-                if (strcmp(*pl, "ls") == 0) {
-                    execute_ls_function();
-                } else {
-                    printf("Unknown command\n");
-                }
-                break;
-            case 'w':
-                if (strcmp(*pl, "who") == 0) {
-                    execute_who_function();
-                } else {
-                    printf("Unknown command\n");
-                }
-                break;
-            case 'c':
-                if (strcmp(*pl, "cd") == 0) {
-                    execute_ls_function();
-                } else {
-                    printf("Unknown command\n");
-                }
-                break;
-            case 'd':
-                if (strcmp(*pl, "date") == 0) {
-                    execute_date_function();
-                } else {
-                    printf("Unknown command\n");
-                }
-                break;
-            case 's':
-                // Get the sleep number after 6 position of 's'
-                sleep_time = atoi(*pl + 6);
-                sleep(sleep_time);
-                printf("Sleep about %d sec \n", sleep_time);
-            default:printf("unknown command");
-        }
+// Execute the command in program list
+static void run_command(Command *cmd_list){
 
-    } else {
-        // Parent process: wait for the child to complete
-        int status;
-        if (!cmd_list->background) {
-            // Only wait if the command is not set to run in the background
-            waitpid(pid, &status, 0);
-        }
-    }
-        print_cmd(cmd_list);
+  run_pgm(cmd_list->pgm);
+  print_cmd(cmd_list);
 }
 
-/*
- * Print a Command structure as returned by parse on stdout.
- *
- * Helper function, no need to change. Might be useful to study as inpsiration.
- */
+static void run_pgm(Pgm *p) {
+  if (p == NULL)
+  {
+    return;
+  }
+  else
+  {
+    char **pl = p->pgmlist;
+    int sleep_time;
+    run_pgm(p->next);
+    while (*pl)
+    {
+      pid_t pid = fork();
+      if (pid < 0) {
+        perror("fork");
+        exit(0);
+      } else if (pid == 0) {
+        switch (*pl[0]) {
+          case 'l':
+            if (strcmp(*pl, "ls") == 0) {
+              execute_ls_function();
+            }
+            break;
+          case 'w':
+            if (strcmp(*pl, "who") == 0) {
+              execute_who_function();
+            }
+            break;
+          case 'c':
+            if (strcmp(*pl, "cd") == 0) {
+              execute_ls_function();
+            }
+            break;
+          case 'd':
+            if (strcmp(*pl, "date") == 0) {
+              execute_date_function();
+            }
+            break;
+          case 's':
+            // Get the sleep number after 6 position of 's'
+            sleep_time = atoi(*pl + 6);
+            sleep(sleep_time);
+          default:printf("unknown command");
+        }
+      } else {
+        // Parent process: wait for the child to complete
+        int status;
+        waitpid(pid, &status, 0);
+      }
+      pl++;
+    }
+  }
+}
+
 static void print_cmd(Command *cmd_list)
 {
   printf("------------------------------\n");
@@ -215,5 +214,3 @@ void stripwhite(char *string)
 
   string[++i] = '\0';
 }
-
-
