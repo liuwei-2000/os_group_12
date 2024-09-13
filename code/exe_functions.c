@@ -3,6 +3,7 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
+#include <fcntl.h>
 
 void execute_who_function() {
     int error = 0;
@@ -25,45 +26,40 @@ void execute_date_function() {
         exit(EXIT_FAILURE);
     }
 }
-/*
-    The split Command function took in string, and a command number counter
-    Further use in calling the function
-    char input[] = "ls | pwd | date";
-    int command_count = 0;
+void grep(const char *filename, const char *pattern) {
+  int fd = open(filename, O_RDONLY);  // Open the file for reading
+  if (fd == -1) {
+    perror("Error opening file");
+    exit(EXIT_FAILURE);
+  }
 
-    char** commands = splitString(input, &command_count);
+  char buffer[BUFFER_SIZE];
+  ssize_t bytesRead;
+  char *line;
+  size_t len;
 
-    for (int i = 0; i < command_count; i++) {
-        -- execute commands [i];
-        free(commands[i]);
+  // Reading file line by line
+  while ((bytesRead = read(fd, buffer, BUFFER_SIZE)) > 0) {
+    line = strtok(buffer, "\n");
+    while (line != NULL) {
+      if (strstr(line, pattern) != NULL) {
+        printf("%s\n", line);  // Print matching line
+      }
+      line = strtok(NULL, "\n");
     }
- */
-char** splitCommand(char* str, int* count) {
-    int commands_count = 0;
-    char* tempStr = strdup(str); // Make a copy of the string for manipulation
-    char* token = strtok(tempStr, "|");
-    
-    // Count the number of commands
-    while (token != NULL) {
-        commands_count++;
-        token = strtok(NULL, "|");
-    }
+  }
 
-    // Allocate memory for the commands array
-    char** commands = malloc(commands_count * sizeof(char*));
-    strcpy(tempStr, str); // Reset the string copy
-    token = strtok(tempStr, "|");
+  if (bytesRead == -1) {
+    perror("Error reading file");
+  }
+  close(fd);  // Close the file
+}
 
-    // Extract commands
-    for (int i = 0; i < commands_count; i++) {
-        commands[i] = strdup(token); // Duplicate the token to the array
-        token = strtok(NULL, "|");
-    }
 
-    // Clean up
-    free(tempStr);
-
-    *count = commands_count;
-    return commands;
-
+void execute_cd_function(const char *path){
+  if (chdir(path) == 0) {
+    printf("Changed directory to: %s\n", path);
+  } else {
+    perror("chdir failed");
+  }
 }

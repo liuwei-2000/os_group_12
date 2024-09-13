@@ -104,9 +104,9 @@ static void run_pgm(Pgm *p) {
     char **pl = p->pgmlist;
     int sleep_time;
     run_pgm(p->next);
+    pid_t pid = fork();
     while (*pl)
     {
-      pid_t pid = fork();
       if (pid < 0) {
         perror("fork");
         exit(0);
@@ -115,28 +115,43 @@ static void run_pgm(Pgm *p) {
           case 'l':
             if (strcmp(*pl, "ls") == 0) {
               execute_ls_function();
+              exit(0);
             }
             break;
           case 'w':
             if (strcmp(*pl, "who") == 0) {
               execute_who_function();
+              exit(0);
             }
             break;
           case 'c':
             if (strcmp(*pl, "cd") == 0) {
-              execute_ls_function();
+              execute_cd_function(*pl + 3);
+              exit(0);
             }
             break;
           case 'd':
             if (strcmp(*pl, "date") == 0) {
               execute_date_function();
+              exit(0);
+            }
+            break;
+          case 'e':
+            if (strcmp(*pl, "exit") == 0) {
+              exit(0);
             }
             break;
           case 's':
             // Get the sleep number after 6 position of 's'
             sleep_time = atoi(*pl + 6);
             sleep(sleep_time);
+            exit(0);
+            break;
+          case 'g':
+            grep("filename", *pl + 5);
+            break;
           default:printf("unknown command");
+
         }
       } else {
         // Parent process: wait for the child to complete
