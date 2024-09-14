@@ -1,21 +1,3 @@
-/*
- * Main source code file for lsh shell program
- *
- * You are free to add functions to this file.
- * If you want to add functions in a separate file(s)
- * you will need to modify the CMakeLists.txt to compile
- * your additional file(s).
- *
- * Add appropriate comments in your code to make it
- * easier for us while grading your assignment.
- *
- * Using assert statements in your code is a great way to catch errors early and make debugging easier.
- * Think of them as mini self-checks that ensure your program behaves as expected.
- * By setting up these guardrails, you're creating a more robust and maintainable solution.
- * So go ahead, sprinkle some asserts in your code; they're your friends in disguise!
- *
- * All the best!
- */
 #include <assert.h>
 #include <ctype.h>
 #include <readline/readline.h>
@@ -24,7 +6,6 @@
 #include <stdlib.h>
 #include <string.h>
 #include "exe_functions.h"
-// The <unistd.h> header is your gateway to the OS's process management facilities.
 #include <unistd.h>
 #include <pthread.h>
 
@@ -41,12 +22,10 @@ void* monitor_ctrl_d(void* arg) {
   pthread_t* execution_thread = (pthread_t*)arg;
   printf("Monitor thread started. Press Ctrl+D (EOF) to terminate the sleep thread.\n");
 
-  // Monitor stdin for Ctrl+D (EOF)
   while (1) {
     int c = getchar(); // Read from stdin
     if (c == EOF) {
       printf("\nCtrl+D (EOF) detected. Terminating the sleep thread...\n");
-
       // Cancel the sleep thread
       pthread_cancel(*execution_thread);
       pthread_exit(NULL);
@@ -87,8 +66,6 @@ int main(void)
         printf("Parse ERROR\n");
       }
     }
-
-
     // Clear memory
     free(line);
   }
@@ -111,8 +88,6 @@ static void run_pgm(Pgm *p) {
     int sleep_time;
     run_pgm(p->next);
     pid_t pid = fork();
-    while (*pl)
-    {
       if (pid < 0) {
         perror("fork");
         exit(0);
@@ -120,7 +95,7 @@ static void run_pgm(Pgm *p) {
         switch (*pl[0]) {
           case 'l':
             if (strcmp(*pl, "ls") == 0) {
-              execute_ls_function();
+              execute_ls_function(*(pl+1));
               exit(0);
             }
             break;
@@ -144,7 +119,7 @@ static void run_pgm(Pgm *p) {
             break;
           case 'e':
             if (strcmp(*pl, "exit") == 0) {
-              exit(0);
+              exit(1);
             }
             break;
           case 's':
@@ -163,13 +138,10 @@ static void run_pgm(Pgm *p) {
         int status;
         waitpid(pid, &status, 0);
       }
-      pl++;
     }
   }
-}
 
-static void print_cmd(Command *cmd_list)
-{
+static void print_cmd(Command *cmd_list){
   printf("------------------------------\n");
   printf("Parse OK\n");
   printf("stdin:      %s\n", cmd_list->rstdin ? cmd_list->rstdin : "<none>");
@@ -180,57 +152,34 @@ static void print_cmd(Command *cmd_list)
   printf("------------------------------\n");
 }
 
-/* Print a (linked) list of Pgm:s.
- *
- * Helper function, no need to change. Might be useful to study as inpsiration.
- */
-static void print_pgm(Pgm *p)
-{
-  if (p == NULL)
-  {
+static void print_pgm(Pgm *p){
+  if (p == NULL){
     return;
-  }
-  else
-  {
+  }else{
     char **pl = p->pgmlist;
-
     /* The list is in reversed order so print
      * it reversed to get right
      */
     print_pgm(p->next);
     printf("            * [ ");
-    while (*pl)
-    {
+    while (*pl){
       printf("%s ", *pl++);
     }
     printf("]\n");
   }
 }
 
-
-/* Strip whitespace from the start and end of a string.
- *
- * Helper function, no need to change.
- */
-void stripwhite(char *string)
-{
+void stripwhite(char *string){
   size_t i = 0;
-
-  while (isspace(string[i]))
-  {
+  while (isspace(string[i])){
     i++;
   }
-
-  if (i)
-  {
+  if (i){
     memmove(string, string + i, strlen(string + i) + 1);
   }
-
   i = strlen(string) - 1;
-  while (i > 0 && isspace(string[i]))
-  {
+  while (i > 0 && isspace(string[i])){
     i--;
   }
-
   string[++i] = '\0';
 }

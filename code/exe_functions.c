@@ -14,8 +14,9 @@ void execute_who_function() {
     }
 }
 
-void execute_ls_function() {
-    execlp("ls", "ls", "-l", (char *)NULL);
+void execute_ls_function(char *param) {
+    printf("param : %s\n", param);
+    execlp("ls", "ls", param, (char *)NULL);
 }
 
 void execute_date_function() {
