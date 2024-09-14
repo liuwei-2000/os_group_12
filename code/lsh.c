@@ -37,23 +37,32 @@ void stripwhite(char *);
 
 static void run_pgm(Pgm *pC);
 
-void* monitor_ctrl_d(pthread_t execution_thread) {
+void* monitor_ctrl_d(void* arg) {
+  pthread_t* execution_thread = (pthread_t*)arg;
   printf("Monitor thread started. Press Ctrl+D (EOF) to terminate the sleep thread.\n");
 
   // Monitor stdin for Ctrl+D (EOF)
   while (1) {
     int c = getchar(); // Read from stdin
     if (c == EOF) {
-      printf("\nCtrl+D (EOF) detected. Terminating the execution thread...\n");
+      printf("\nCtrl+D (EOF) detected. Terminating the sleep thread...\n");
 
       // Cancel the sleep thread
-      pthread_cancel(execution_thread);
-      break;
+      pthread_cancel(*execution_thread);
+      pthread_exit(NULL);
     }
   }
-
   return NULL;
 }
+
+void* sleep_thread(void* arg) {
+  int sleep_time = *(int*)arg;
+  printf("Sleeping for %d seconds...\n", sleep_time);
+  sleep(sleep_time);
+  printf("Finished sleeping.\n");
+  return NULL;
+}
+
 
 int main(void)
 {
@@ -89,18 +98,15 @@ int main(void)
 
 // Execute the command in program list
 static void run_command(Command *cmd_list){
-
   run_pgm(cmd_list->pgm);
   print_cmd(cmd_list);
 }
 
 static void run_pgm(Pgm *p) {
-  if (p == NULL)
-  {
+  if (p == NULL){
     return;
   }
-  else
-  {
+  else{
     char **pl = p->pgmlist;
     int sleep_time;
     run_pgm(p->next);
@@ -144,12 +150,11 @@ static void run_pgm(Pgm *p) {
           case 's':
             // Get the sleep number after 6 position of 's'
             sleep_time = atoi(*pl + 6);
-            sleep(sleep_time);
-            exit(0);
-            break;
-          case 'g':
-            grep("filename", *pl + 5);
-            break;
+            pthread_t monitor_thread, execution_thread;
+            pthread_create(&monitor_thread, NULL, monitor_ctrl_d, (void*)&execution_thread);
+            pthread_create(&execution_thread, NULL, sleep_thread, &sleep_time);
+            // Wait for the sleep thread to finish
+            pthread_join(execution_thread, NULL);
           default:printf("unknown command");
 
         }
